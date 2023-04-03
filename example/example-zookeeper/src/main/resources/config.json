@@ -1,6 +1,6 @@
 {
   "enabled":true,
-  "collectorType":"logging",
+  "collectorType":"Internal_logging",
   "monitorInterval":5,
   "enabledBanner":true,
   "enabledCollect":true,

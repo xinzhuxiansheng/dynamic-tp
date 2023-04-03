@@ -1,27 +1,28 @@
-package com.dtp.example.controller;
+package com.yzhou.controller;
 
 import com.dtp.core.DtpRegistry;
 import com.dtp.core.support.runnable.NamedRunnable;
 import com.dtp.core.thread.DtpExecutor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import java.util.concurrent.ThreadPoolExecutor;
-
 /**
- * @author Redick01
+ * @author yzhou
+ * @date 2023/3/31
  */
-@Slf4j
 @RestController
-@SuppressWarnings("all")
 public class TestController {
+    private static final Logger logger = LoggerFactory.getLogger(TestController.class);
 
-    @Resource
-    private ThreadPoolExecutor dtpExecutor1;
+    @GetMapping("/test01")
+    public String test01() {
+        logger.info("TestController test01");
+        return "OK";
+    }
 
-    @GetMapping("/dtp-zookeeper-example/test")
+    @GetMapping("/test02")
     public String test() throws InterruptedException {
         task();
         return "success";
@@ -31,16 +32,13 @@ public class TestController {
         DtpExecutor dtpExecutor2 = DtpRegistry.getDtpExecutor("dtpExecutor2");
         for (int i = 0; i < 100; i++) {
             Thread.sleep(100);
-            dtpExecutor1.execute(() -> {
-                log.info("i am dynamic-tp-test-1 task");
-            });
             dtpExecutor2.execute(NamedRunnable.of(() -> {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                log.info("i am dynamic-tp-test-2 task");
+                logger.info("i am dynamic-tp-test-2 task");
             }, "task-" + i));
         }
         //dtpExecutor2.shutdown();
