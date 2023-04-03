@@ -23,9 +23,16 @@ import static java.util.stream.Collectors.toList;
 public class NotifyItem {
 
     /**
+     * @deprecated, use {@link #platformIds} instead, remove in 1.1.2
      * Notify platform names, see {@link NotifyPlatformEnum}
      */
+    @Deprecated
     private List<String> platforms;
+
+    /**
+     * Notify platform id
+     */
+    private List<String> platformIds;
 
     /**
      * If enabled notify.

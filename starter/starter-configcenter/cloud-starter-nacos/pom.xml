@@ -5,24 +5,17 @@
     <parent>
         <groupId>cn.dynamictp</groupId>
         <artifactId>dynamic-tp-starter-configcenter</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.2</version>
     </parent>
     <artifactId>dynamic-tp-spring-cloud-starter-nacos</artifactId>
 
     <dependencies>
-
-        <dependency>
-            <groupId>cn.dynamictp</groupId>
-            <artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
-
     </dependencies>
 
 </project>

@@ -1,12 +1,13 @@
 package com.dtp.core.support;
 
-import com.dtp.common.entity.NotifyItem;
 import com.dtp.common.em.NotifyItemEnum;
+import com.dtp.common.entity.NotifyItem;
 import com.dtp.core.thread.DtpExecutor;
 import lombok.Data;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Executor wrapper
@@ -19,14 +20,19 @@ public class ExecutorWrapper {
 
     private String threadPoolName;
 
-    private Executor executor;
-
     private String threadPoolAliasName;
+
+    private ExecutorAdapter<?> executor;
 
     /**
      * Notify items, see {@link NotifyItemEnum}.
      */
     private List<NotifyItem> notifyItems;
+
+    /**
+     * Notify platform ids.
+     */
+    private List<String> platformIds;
 
     private boolean notifyEnabled = true;
 
@@ -39,7 +45,13 @@ public class ExecutorWrapper {
 
     public ExecutorWrapper(String threadPoolName, Executor executor) {
         this.threadPoolName = threadPoolName;
-        this.executor = executor;
+        if (executor instanceof ThreadPoolExecutor) {
+            this.executor = new ThreadPoolExecutorAdapter((ThreadPoolExecutor) executor);
+        } else if (executor instanceof ExecutorAdapter<?>) {
+            this.executor = (ExecutorAdapter<?>) executor;
+        } else {
+            throw new IllegalArgumentException("unsupported Executor type !");
+        }
         this.notifyItems = NotifyItem.getSimpleNotifyItems();
     }
 

@@ -1,8 +1,8 @@
 package com.dtp.core.handler;
 
-import com.dtp.common.entity.DtpMainProp;
-import com.dtp.common.entity.NotifyItem;
 import com.dtp.common.em.NotifyItemEnum;
+import com.dtp.common.entity.NotifyItem;
+import com.dtp.common.entity.TpMainFields;
 import com.dtp.core.context.DtpNotifyCtxHolder;
 import com.dtp.core.notify.DtpDingNotifier;
 import com.dtp.core.notify.DtpLarkNotifier;
@@ -11,6 +11,7 @@ import com.dtp.core.notify.DtpWechatNotifier;
 import com.dtp.core.notify.base.DingNotifier;
 import com.dtp.core.notify.base.LarkNotifier;
 import com.dtp.core.notify.base.WechatNotifier;
+import com.dtp.core.notify.manager.NotifyHelper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -34,7 +35,6 @@ public final class NotifierHandler {
         for (DtpNotifier notifier : loader) {
             NOTIFIERS.put(notifier.platform(), notifier);
         }
-
         DtpNotifier dingNotifier = new DtpDingNotifier(new DingNotifier());
         DtpNotifier wechatNotifier = new DtpWechatNotifier(new WechatNotifier());
         DtpNotifier larkNotifier = new DtpLarkNotifier(new LarkNotifier());
@@ -43,23 +43,27 @@ public final class NotifierHandler {
         NOTIFIERS.put(larkNotifier.platform(), larkNotifier);
     }
 
-    public void sendNotice(DtpMainProp prop, List<String> diffs) {
+    public void sendNotice(TpMainFields oldFields, List<String> diffs) {
         NotifyItem notifyItem = DtpNotifyCtxHolder.get().getNotifyItem();
-        for (String platform : notifyItem.getPlatforms()) {
-            DtpNotifier notifier = NOTIFIERS.get(platform.toLowerCase());
-            if (notifier != null) {
-                notifier.sendChangeMsg(prop, diffs);
-            }
+        for (String platformId : notifyItem.getPlatformIds()) {
+            NotifyHelper.getPlatform(platformId).ifPresent(p -> {
+                DtpNotifier notifier = NOTIFIERS.get(p.getPlatform().toLowerCase());
+                if (notifier != null) {
+                    notifier.sendChangeMsg(p, oldFields, diffs);
+                }
+            });
         }
     }
 
     public void sendAlarm(NotifyItemEnum notifyItemEnum) {
         NotifyItem notifyItem = DtpNotifyCtxHolder.get().getNotifyItem();
-        for (String platform : notifyItem.getPlatforms()) {
-            DtpNotifier notifier = NOTIFIERS.get(platform.toLowerCase());
-            if (notifier != null) {
-                notifier.sendAlarmMsg(notifyItemEnum);
-            }
+        for (String platformId : notifyItem.getPlatformIds()) {
+            NotifyHelper.getPlatform(platformId).ifPresent(p -> {
+                DtpNotifier notifier = NOTIFIERS.get(p.getPlatform().toLowerCase());
+                if (notifier != null) {
+                    notifier.sendAlarmMsg(p, notifyItemEnum);
+                }
+            });
         }
     }
 

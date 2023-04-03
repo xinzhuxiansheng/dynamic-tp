@@ -5,7 +5,7 @@
 
     <groupId>cn.dynamictp</groupId>
     <artifactId>dynamic-tp-all</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
     <packaging>pom</packaging>
 
     <name>DynamicTp Project</name>
@@ -14,12 +14,12 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <dtp.version>1.1.0</dtp.version>
+        <dtp.version>1.1.2</dtp.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <spring-boot.version>2.5.8</spring-boot.version>
         <spring-cloud.version>2020.0.5</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.1</spring-cloud-alibaba.version>
-        <hutool.version>5.8.1</hutool.version>
+        <hutool.version>5.8.12</hutool.version>
         <lombok.version>1.18.24</lombok.version>
         <apollo.version>1.5.0</apollo.version>
         <logback.version>1.2.10</logback.version>
@@ -41,6 +41,7 @@
         <skywalking.version>8.11.0</skywalking.version>
         <nacos.version>2.0.4</nacos.version>
         <zookeeper.version>5.2.1</zookeeper.version>
+        <jmh.version>1.35</jmh.version>
     </properties>
 
     <modules>
@@ -88,23 +89,6 @@
             <version>${commons-collections.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -226,12 +210,6 @@
 
             <dependency>
                 <groupId>cn.dynamictp</groupId>
-                <artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
-                <version>${dtp.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>cn.dynamictp</groupId>
                 <artifactId>dynamic-tp-spring-boot-starter-adapter-common</artifactId>
                 <version>${dtp.version}</version>
             </dependency>
@@ -306,6 +284,20 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson-databind.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-core</artifactId>
+                <version>${jmh.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${jmh.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

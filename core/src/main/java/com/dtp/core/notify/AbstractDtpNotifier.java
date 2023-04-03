@@ -5,7 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.dtp.common.em.NotifyItemEnum;
 import com.dtp.common.em.NotifyPlatformEnum;
 import com.dtp.common.entity.AlarmInfo;
-import com.dtp.common.entity.DtpMainProp;
+import com.dtp.common.entity.TpMainFields;
 import com.dtp.common.entity.NotifyItem;
 import com.dtp.common.entity.NotifyPlatform;
 import com.dtp.common.util.CommonUtil;
@@ -14,9 +14,9 @@ import com.dtp.core.context.BaseNotifyCtx;
 import com.dtp.core.context.DtpNotifyCtxHolder;
 import com.dtp.core.notify.alarm.AlarmCounter;
 import com.dtp.core.notify.base.Notifier;
-import com.dtp.core.notify.manager.NotifyHelper;
 import com.dtp.core.support.ExecutorWrapper;
 import com.dtp.core.thread.DtpExecutor;
+import com.dtp.core.support.ExecutorAdapter;
 import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -52,32 +51,31 @@ public abstract class AbstractDtpNotifier implements DtpNotifier {
 
     protected Notifier notifier;
 
-    protected AbstractDtpNotifier() { }
+    protected AbstractDtpNotifier() {
+    }
 
     protected AbstractDtpNotifier(Notifier notifier) {
         this.notifier = notifier;
     }
 
     @Override
-    public void sendChangeMsg(DtpMainProp oldProp, List<String> diffs) {
-        NotifyHelper.getPlatform(platform()).ifPresent(platform -> {
-            String content = buildNoticeContent(platform, oldProp, diffs);
-            if (StringUtils.isBlank(content)) {
-                return;
-            }
-            notifier.send(platform, content);
-        });
+    public void sendChangeMsg(NotifyPlatform notifyPlatform, TpMainFields oldFields, List<String> diffs) {
+        String content = buildNoticeContent(notifyPlatform, oldFields, diffs);
+        if (StringUtils.isBlank(content)) {
+            log.debug("Notice content is empty, ignore send notice message.");
+            return;
+        }
+        notifier.send(notifyPlatform, content);
     }
 
     @Override
-    public void sendAlarmMsg(NotifyItemEnum notifyItemEnum) {
-        NotifyHelper.getPlatform(platform()).ifPresent(platform -> {
-            String content = buildAlarmContent(platform, notifyItemEnum);
-            if (StringUtils.isBlank(content)) {
-                return;
-            }
-            notifier.send(platform, content);
-        });
+    public void sendAlarmMsg(NotifyPlatform notifyPlatform, NotifyItemEnum notifyItemEnum) {
+        String content = buildAlarmContent(notifyPlatform, notifyItemEnum);
+        if (StringUtils.isBlank(content)) {
+            log.debug("Alarm content is empty, ignore send alarm message.");
+            return;
+        }
+        notifier.send(notifyPlatform, content);
     }
 
     /**
@@ -103,9 +101,9 @@ public abstract class AbstractDtpNotifier implements DtpNotifier {
 
     protected String buildAlarmContent(NotifyPlatform platform, NotifyItemEnum notifyItemEnum) {
         AlarmCtx context = (AlarmCtx) DtpNotifyCtxHolder.get();
-        String threadPoolName = context.getExecutorWrapper().getThreadPoolName();
         ExecutorWrapper executorWrapper = context.getExecutorWrapper();
-        val executor = (ThreadPoolExecutor) context.getExecutorWrapper().getExecutor();
+        String threadPoolName = executorWrapper.getThreadPoolName();
+        val executor = executorWrapper.getExecutor();
         NotifyItem notifyItem = context.getNotifyItem();
         AlarmInfo alarmInfo = context.getAlarmInfo();
 
@@ -136,7 +134,7 @@ public abstract class AbstractDtpNotifier implements DtpNotifier {
                 alarmCounter.getLeft(),
                 alarmCounter.getMiddle(),
                 alarmCounter.getRight(),
-                alarmInfo.getLastAlarmTime() == null ? UNKNOWN : alarmInfo.getLastAlarmTime(),
+                Optional.ofNullable(alarmInfo.getLastAlarmTime()).orElse(UNKNOWN),
                 DateUtil.now(),
                 receivesStr,
                 Optional.ofNullable(MDC.get(TRACE_ID)).orElse(UNKNOWN),
@@ -145,10 +143,10 @@ public abstract class AbstractDtpNotifier implements DtpNotifier {
         return highlightAlarmContent(content, notifyItemEnum);
     }
 
-    protected String buildNoticeContent(NotifyPlatform platform, DtpMainProp oldProp, List<String> diffs) {
+    protected String buildNoticeContent(NotifyPlatform platform, TpMainFields oldFields, List<String> diffs) {
         BaseNotifyCtx context = DtpNotifyCtxHolder.get();
         ExecutorWrapper executorWrapper = context.getExecutorWrapper();
-        val executor = (ThreadPoolExecutor) executorWrapper.getExecutor();
+        val executor = executorWrapper.getExecutor();
         String receivesStr = getReceives(platform.getPlatform(), platform.getReceivers());
 
         String content = String.format(
@@ -157,19 +155,13 @@ public abstract class AbstractDtpNotifier implements DtpNotifier {
                 CommonUtil.getInstance().getIp() + ":" + CommonUtil.getInstance().getPort(),
                 CommonUtil.getInstance().getEnv(),
                 populatePoolName(executorWrapper),
-                oldProp.getCorePoolSize(),
-                executor.getCorePoolSize(),
-                oldProp.getMaxPoolSize(),
-                executor.getMaximumPoolSize(),
-                oldProp.isAllowCoreThreadTimeOut(),
-                executor.allowsCoreThreadTimeOut(),
-                oldProp.getKeepAliveTime(),
-                executor.getKeepAliveTime(TimeUnit.SECONDS),
+                oldFields.getCorePoolSize(), executor.getCorePoolSize(),
+                oldFields.getMaxPoolSize(), executor.getMaximumPoolSize(),
+                oldFields.isAllowCoreThreadTimeOut(), executor.allowsCoreThreadTimeOut(),
+                oldFields.getKeepAliveTime(), executor.getKeepAliveTime(TimeUnit.SECONDS),
                 executor.getQueue().getClass().getSimpleName(),
-                oldProp.getQueueCapacity(),
-                getQueueCapacity(executor),
-                oldProp.getRejectType(),
-                getRejectHandlerName(executor),
+                oldFields.getQueueCapacity(), getQueueCapacity(executor),
+                oldFields.getRejectType(), getRejectHandlerName(executor),
                 receivesStr,
                 DateTime.now()
         );
@@ -205,14 +197,11 @@ public abstract class AbstractDtpNotifier implements DtpNotifier {
         return executorWrapper.getThreadPoolName() + "(" + poolAlisaName + ")";
     }
 
-    protected String getRejectHandlerName(ThreadPoolExecutor executor) {
-        if (executor instanceof DtpExecutor) {
-            return ((DtpExecutor) executor).getRejectHandlerName();
-        }
-        return executor.getRejectedExecutionHandler().getClass().getSimpleName();
+    protected String getRejectHandlerName(ExecutorAdapter<?> executor) {
+        return executor.getRejectHandlerName();
     }
 
-    protected int getQueueCapacity(ThreadPoolExecutor executor) {
+    protected int getQueueCapacity(ExecutorAdapter<?> executor) {
         if (executor instanceof DtpExecutor) {
             return ((DtpExecutor) executor).getQueueCapacity();
         }
@@ -228,7 +217,7 @@ public abstract class AbstractDtpNotifier implements DtpNotifier {
         for (String field : diffs) {
             content = content.replace(field, pair.getLeft());
         }
-        for (Field field : DtpMainProp.getMainProps()) {
+        for (Field field : TpMainFields.getMainFields()) {
             content = content.replace(field.getName(), pair.getRight());
         }
         return content;

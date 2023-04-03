@@ -22,6 +22,8 @@ public final class DynamicTpConst {
 
     public static final String DTP_ENABLED_PROP = MAIN_PROPERTIES_PREFIX + ".enabled";
 
+    public static final String BANNER_ENABLED_PROP = MAIN_PROPERTIES_PREFIX + ".enabledBanner";
+
     public static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
     public static final String PROPERTIES_CHANGE_SHOW_STYLE = "%s => %s";
@@ -43,6 +45,8 @@ public final class DynamicTpConst {
 
     public static final String NOTIFY_ITEMS = "notifyItems";
 
+    public static final String PLATFORM_IDS = "platformIds";
+
     public static final String NOTIFY_ENABLED = "notifyEnabled";
 
     public static final String WAIT_FOR_TASKS_TO_COMPLETE_ON_SHUTDOWN = "waitForTasksToCompleteOnShutdown";
@@ -56,6 +60,11 @@ public final class DynamicTpConst {
     public static final String QUEUE_TIMEOUT = "queueTimeout";
 
     public static final String TASK_WRAPPERS = "taskWrappers";
+
+    /**
+     * alarm
+     */
+    public static final String ALARM_NAME = "dtp-alarm";
 
     /**
      * symbol
@@ -72,4 +81,14 @@ public final class DynamicTpConst {
      * unit
      */
     public static final Integer M_1 = 1024 * 1024;
+
+    /**
+     * OS
+     */
+    public static final String OS_NAME_KEY = "os.name";
+
+    public static final String OS_LINUX_PREFIX = "linux";
+
+    public static final String OS_WIN_PREFIX = "win";
+
 }
