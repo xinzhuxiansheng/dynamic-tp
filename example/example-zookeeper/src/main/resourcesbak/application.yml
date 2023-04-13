@@ -10,8 +10,7 @@ spring:
       zookeeper:
         zk-connect-str: 127.0.0.1:2181
         root-node: /configserver/dev
-        node: user-center
-#        node: dynamic-tp-zookeeper-demo
+        node: dtp-group
         config-key: dynamic-tp-zookeeper-demo-json   # json 用到
 
 

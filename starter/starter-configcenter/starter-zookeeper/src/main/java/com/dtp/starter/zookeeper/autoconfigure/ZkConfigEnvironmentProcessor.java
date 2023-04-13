@@ -18,6 +18,8 @@ import java.util.Map;
  * @author yanhom
  * @since 1.0.4
  **/
+
+// yzhou 它可以在创建应用程序上下文之前（项目启动之前） 读取zookeeper配置
 public class ZkConfigEnvironmentProcessor implements EnvironmentPostProcessor, Ordered {
 
     public static final String ZK_PROPERTY_SOURCE_NAME = "dtpZkPropertySource";
@@ -38,6 +40,7 @@ public class ZkConfigEnvironmentProcessor implements EnvironmentPostProcessor, O
         return propertySources.stream().anyMatch(p -> ZK_PROPERTY_SOURCE_NAME.equals(p.getName()));
     }
 
+    // 将ZooKeeper配置，装载到environment
     private void createZkPropertySource(ConfigurableEnvironment environment, Map<Object, Object> properties) {
         MutablePropertySources propertySources = environment.getPropertySources();
         OriginTrackedMapPropertySource zkSource = new OriginTrackedMapPropertySource(ZK_PROPERTY_SOURCE_NAME, properties);

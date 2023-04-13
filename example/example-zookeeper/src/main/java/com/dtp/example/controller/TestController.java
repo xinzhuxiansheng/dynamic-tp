@@ -18,8 +18,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 @SuppressWarnings("all")
 public class TestController {
 
-    @Resource
-    private ThreadPoolExecutor dtpExecutor1;
+//    @Resource
+//    private ThreadPoolExecutor dtpExecutor1;
 
     @GetMapping("/dtp-zookeeper-example/test")
     public String test() throws InterruptedException {
@@ -28,18 +28,18 @@ public class TestController {
     }
 
     public void task() throws InterruptedException {
-        DtpExecutor dtpExecutor2 = DtpRegistry.getDtpExecutor("dtpExecutor2");
+        DtpExecutor dtpExecutor2 = DtpRegistry.getDtpExecutor("dtpExecutor1");
         for (int i = 0; i < 100; i++) {
             Thread.sleep(100);
-            dtpExecutor1.execute(() -> {
-                log.info("i am dynamic-tp-test-1 task");
-            });
+//            dtpExecutor1.execute(() -> {
+//                log.info("i am dynamic-tp-test-1 task");
+//            });
             dtpExecutor2.execute(NamedRunnable.of(() -> {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
                 log.info("i am dynamic-tp-test-2 task");
             }, "task-" + i));
         }

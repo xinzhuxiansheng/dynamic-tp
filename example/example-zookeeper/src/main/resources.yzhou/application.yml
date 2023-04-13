@@ -6,12 +6,11 @@ spring:
     name: dynamic-tp-zookeeper-demo
   dynamic:
     tp:
-      config-type: properties   # zookeeper支持properties / json 配置
+      config-type: properties               # zookeeper支持properties / json 配置
       zookeeper:
         zk-connect-str: 127.0.0.1:2181
-        root-node: /configserver/dev
-        node: user-center
-#        node: dynamic-tp-zookeeper-demo
+        root-node: /configserver/yzhou
+        node: dynamic-tp-zookeeper-demo
         config-key: dynamic-tp-zookeeper-demo-json   # json 用到
 
 

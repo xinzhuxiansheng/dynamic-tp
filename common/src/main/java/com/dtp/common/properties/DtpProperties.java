@@ -5,7 +5,9 @@ import com.dtp.common.entity.DtpExecutorProps;
 import com.dtp.common.entity.NotifyPlatform;
 import com.dtp.common.entity.TpExecutorProps;
 import com.google.common.collect.Lists;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -58,6 +60,14 @@ public class DtpProperties {
      * Config file type.
      */
     private String configType = "yml";
+
+    public String getConfigType() {
+        return configType;
+    }
+
+    public void setConfigType(String configType) {
+        this.configType = configType;
+    }
 
     /**
      * If enabled metrics collect.

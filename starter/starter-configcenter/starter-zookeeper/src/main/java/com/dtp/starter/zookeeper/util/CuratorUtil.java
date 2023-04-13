@@ -85,6 +85,7 @@ public class CuratorUtil {
         return result;
     }
 
+    // yzhou 读取zookeeper数据
     private static Map<Object, Object> genPropertiesTypeMap(String nodePath, CuratorFramework curatorFramework) {
         try {
             final GetChildrenBuilder childrenBuilder = curatorFramework.getChildren();

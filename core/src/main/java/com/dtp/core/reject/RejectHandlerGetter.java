@@ -20,7 +20,8 @@ import static com.dtp.common.em.RejectedTypeEnum.*;
 @Slf4j
 public class RejectHandlerGetter {
 
-    private RejectHandlerGetter() { }
+    private RejectHandlerGetter() {
+    }
 
     public static RejectedExecutionHandler buildRejectedHandler(String name) {
         if (Objects.equals(name, ABORT_POLICY.getName())) {
@@ -49,7 +50,14 @@ public class RejectHandlerGetter {
         return getProxy(buildRejectedHandler(name));
     }
 
+    // 动态代理类
     public static RejectedExecutionHandler getProxy(RejectedExecutionHandler handler) {
+//        if (handler == null) {
+//            throw new IllegalArgumentException("Handler cannot be null.");
+//        }
+//        if(handler.getClass().getClassLoader() == null){
+//            throw new IllegalArgumentException("handler.getClass().getClassLoader() cannot be null.");
+//        }
         return (RejectedExecutionHandler) Proxy
                 .newProxyInstance(handler.getClass().getClassLoader(),
                         new Class[]{RejectedExecutionHandler.class},
